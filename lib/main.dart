@@ -535,7 +535,9 @@ class _HomeState extends State<Home> {
                       apidataobj.data[i].sSource.title.toString(),
                       overflow: TextOverflow.fade,
                       style: TextStyle(
-                          fontSize: 30,
+                          fontSize: MediaQuery.of(context).size.width / 35 > 30
+                              ? 20
+                              : MediaQuery.of(context).size.width / 35,
                           fontWeight: FontWeight.bold,
                           color: Colors.lightGreen[500]),
                     ),
@@ -636,7 +638,11 @@ class _HomeState extends State<Home> {
                             title: Text(
                               "AUTHOR(s):",
                               style: TextStyle(
-                                  fontSize: 20,
+                                  fontSize: MediaQuery.of(context).size.width /
+                                              50 >
+                                          25
+                                      ? 25
+                                      : MediaQuery.of(context).size.width / 40,
                                   fontWeight: FontWeight.w700,
                                   color: Colors.black38),
                               textAlign: TextAlign.center,
@@ -653,7 +659,14 @@ class _HomeState extends State<Home> {
                                             1),
                                 style: TextStyle(
                                     wordSpacing: 10,
-                                    fontSize: 20,
+                                    fontSize:
+                                        MediaQuery.of(context).size.width / 50 >
+                                                25
+                                            ? 25
+                                            : MediaQuery.of(context)
+                                                    .size
+                                                    .width /
+                                                45,
                                     fontWeight: FontWeight.normal,
                                     color: Colors.black38),
                                 textAlign: TextAlign.center,
@@ -787,6 +800,7 @@ class _HomeState extends State<Home> {
               width: MediaQuery.of(context).size.width,
               height: 30,
               margin: EdgeInsets.fromLTRB(10, 20, 10, 10),
+              padding: EdgeInsets.fromLTRB(0, 0, 0, 5),
               decoration: BoxDecoration(
                 color: Colors.black12,
                 borderRadius: BorderRadius.circular(20),
