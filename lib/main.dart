@@ -1,9 +1,11 @@
+import 'package:bubble_lens/bubble_lens.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'dart:developer';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/services.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 void main() {
@@ -472,6 +474,7 @@ class _HomeState extends State<Home> {
   var search = TextEditingController();
   String word = "";
   var data;
+  var searches = [];
   apidata apidataobj;
 
   Future getHttp(String querry) async {
@@ -695,6 +698,44 @@ class _HomeState extends State<Home> {
     return card;
   }
 
+  List<Widget> SearchHistory(searches) {
+    return (searches.length == 0)
+        ? List<Widget>.generate(
+            1,
+            (i) => Container(
+                  color: Colors.red,
+                  height: MediaQuery.of(context).size.height,
+                  width: MediaQuery.of(context).size.width,
+                  child: Center(
+                    child: Text(
+                      "No Recent Search Found.",
+                      style: TextStyle(
+                          decoration: TextDecoration.none,
+                          color: Colors.white,
+                          fontSize: MediaQuery.of(context).size.width / 50),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ))
+        : List<Widget>.generate(
+            searches.length,
+            (i) => Container(
+                  decoration: BoxDecoration(
+                      color: Colors.green,
+                      borderRadius: BorderRadius.circular(1000)),
+                  child: Center(
+                      child: Text(
+                    (i + 1).toString() + '\n' + searches[i],
+                    style: TextStyle(
+                        decoration: TextDecoration.none,
+                        color: Colors.white,
+                        fontSize: MediaQuery.of(context).size.width / 50),
+                    textAlign: TextAlign.center,
+                  )),
+                  margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                ));
+  }
+
   int a = 0;
   double butwidth = 100;
   ScrollController scrollbarcontroller;
@@ -732,6 +773,42 @@ class _HomeState extends State<Home> {
     }
 
     return Scaffold(
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.white70,
+          child: Icon(
+            Icons.history,
+            color: Colors.lightGreen,
+            size: 40,
+          ),
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Scaffold(
+                    floatingActionButton: FloatingActionButton(
+                        child: Icon(
+                          Icons.home,
+                          color: Colors.lightGreen,
+                          size: 40,
+                        ),
+                        backgroundColor: Colors.white70,
+                        onPressed: () {
+                          Navigator.pop(context,
+                              MaterialPageRoute(builder: (context) => Home()));
+                        }),
+                    body: Center(
+                      child: BubbleLens(
+                        widgets: SearchHistory(searches),
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.height,
+                        size: MediaQuery.of(context).size.width / 5,
+                        radius: Radius.circular(1000),
+                      ),
+                    ),
+                  ),
+                ));
+          },
+        ),
         backgroundColor: Colors.white,
         appBar: AppBar(
           leading: Container(
@@ -751,6 +828,7 @@ class _HomeState extends State<Home> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(2000)),
                 onPressed: () {
+                  searches.add(word);
                   setState(() {
                     a = a + 1;
                   });
@@ -807,6 +885,19 @@ class _HomeState extends State<Home> {
                 // border: Border.all(width: 2, color: Colors.white70)),
               ),
               child: TextField(
+                onSubmitted: (word) {
+                  FocusScope.of(context).requestFocus(FocusNode());
+                  print("h");
+                  searches.add(word);
+                  setState(() {
+                    a = a + 1;
+                  });
+                  if (word != "") {
+                    setState(() {});
+                    print(
+                        "https://core.ac.uk:443/api-v2/search/${word}?page=1&pageSize=10&apiKey=cjMRGW3khb04x2iuZD9HIvCLVANfodKl");
+                  } else {}
+                },
                 onChanged: (val) {
                   // val == ""
                   //     ? setState(() {
@@ -833,10 +924,10 @@ class _HomeState extends State<Home> {
                     hintText: "Search for the topic here...",
                     border: InputBorder.none),
                 // autocorrect: true,
-                // autofocus: true,
-                // enableSuggestions: true,
+                autofocus: true,
+                enableSuggestions: true,
                 // expands: true,
-                // enableInteractiveSelection: true,
+                enableInteractiveSelection: true,
                 textAlign: TextAlign.center,
               ),
             ),

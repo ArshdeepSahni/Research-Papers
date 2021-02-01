@@ -30,6 +30,7 @@ dependencies:
   cupertino_icons: ^1.0.0
   pull_to_refresh: ^1.6.3
   dio: ^3.0.10
+  bubble_lens: ^1.0.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
