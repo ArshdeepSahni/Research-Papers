@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'interval.dart';
+import 'splash.dart';
 
 void main() {
   runApp(MyApp());
@@ -17,7 +19,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Home(),
+      home: Splash(
+        page: Home(),
+      ),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -793,8 +797,14 @@ class _HomeState extends State<Home> {
                         ),
                         backgroundColor: Colors.white70,
                         onPressed: () {
-                          Navigator.pop(context,
-                              MaterialPageRoute(builder: (context) => Home()));
+                          word = searches[a - 1];
+                          search.text = searches[a - 1];
+                          print(a);
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      IntervalBetween(page: Home())));
                         }),
                     body: Center(
                       child: BubbleLens(
@@ -802,7 +812,7 @@ class _HomeState extends State<Home> {
                         width: MediaQuery.of(context).size.width,
                         height: MediaQuery.of(context).size.height,
                         size: MediaQuery.of(context).size.width / 5,
-                        radius: Radius.circular(1000),
+                        radius: Radius.circular(2000),
                       ),
                     ),
                   ),
