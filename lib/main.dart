@@ -1,4 +1,6 @@
+import 'package:avatar_glow/avatar_glow.dart';
 import 'package:bubble_lens/bubble_lens.dart';
+import 'package:clipboard/clipboard.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'dart:developer';
@@ -7,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:toast/toast.dart';
 import 'interval.dart';
 import 'splash.dart';
 
@@ -706,37 +709,123 @@ class _HomeState extends State<Home> {
     return (searches.length == 0)
         ? List<Widget>.generate(
             1,
-            (i) => Container(
-                  color: Colors.red,
-                  height: MediaQuery.of(context).size.height,
-                  width: MediaQuery.of(context).size.width,
-                  child: Center(
-                    child: Text(
-                      "No Recent Search Found.",
-                      style: TextStyle(
-                          decoration: TextDecoration.none,
-                          color: Colors.white,
-                          fontSize: MediaQuery.of(context).size.width / 50),
-                      textAlign: TextAlign.center,
+            (i) => MediaQuery.of(context).size.width < 1000
+                ? Center(
+                    child: Container(
+                      padding: EdgeInsets.all(0),
+                      width: MediaQuery.of(context).size.width * 2,
+                      height: MediaQuery.of(context).size.width * 2,
+                      decoration: BoxDecoration(
+                          color: Colors.orange,
+                          borderRadius: BorderRadius.circular(100)),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.warning_amber_rounded,
+                              color: Colors.white,
+                              size: MediaQuery.of(context).size.width / 10 > 200
+                                  ? 200
+                                  : MediaQuery.of(context).size.width / 10,
+                            ),
+                            Text(
+                              "Search history is empty",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize:
+                                    MediaQuery.of(context).size.width / 60 > 15
+                                        ? 15
+                                        : MediaQuery.of(context).size.width /
+                                            60,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+                : Center(
+                    child: AvatarGlow(
+                      endRadius: MediaQuery.of(context).size.height,
+                      shape: BoxShape.circle,
+                      glowColor: Colors.orange,
+                      child: Container(
+                        padding: EdgeInsets.all(0),
+                        width: MediaQuery.of(context).size.width * 2,
+                        height: MediaQuery.of(context).size.width * 2,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(1000)),
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.warning_amber_rounded,
+                                color: Colors.white,
+                                size: MediaQuery.of(context).size.width / 10 >
+                                        200
+                                    ? 200
+                                    : MediaQuery.of(context).size.width / 10,
+                              ),
+                              Text(
+                                "Search history is empty",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: MediaQuery.of(context).size.width /
+                                              60 >
+                                          15
+                                      ? 15
+                                      : MediaQuery.of(context).size.width / 60,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ))
+          )
         : List<Widget>.generate(
             searches.length,
-            (i) => Container(
-                  decoration: BoxDecoration(
-                      color: Colors.green,
-                      borderRadius: BorderRadius.circular(1000)),
-                  child: Center(
-                      child: Text(
-                    (i + 1).toString() + '\n' + searches[i],
-                    style: TextStyle(
-                        decoration: TextDecoration.none,
-                        color: Colors.white,
-                        fontSize: MediaQuery.of(context).size.width / 50),
-                    textAlign: TextAlign.center,
-                  )),
-                  margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
+            (i) => FlatButton(
+                  color: Colors.white60,
+                  onPressed: () {
+                    FlutterClipboard.copy(searches[i]);
+                    Toast.show(searches[i] + ", Copied To Clipboard!", context,
+                        duration: 3,
+                        gravity: Toast.BOTTOM,
+                        backgroundColor: Colors.lightGreen,
+                        textColor: Colors.white);
+                  },
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(2000)),
+                  child: Container(
+                    decoration: BoxDecoration(
+                        // color: Colors.black12.withOpacity(0.05),
+                        boxShadow: [
+                          BoxShadow(
+                              blurRadius: 55,
+                              color: Colors.white54,
+                              offset: Offset.infinite,
+                              spreadRadius: 50)
+                        ], borderRadius: BorderRadius.circular(1000)),
+                    child: Center(
+                        child: Text(
+                      (i + 1).toString() + '\n' + searches[i],
+                      style: TextStyle(
+                          decoration: TextDecoration.none,
+                          color: Colors.lightGreen,
+                          fontWeight: FontWeight.bold,
+                          fontSize: MediaQuery.of(context).size.width / 50 < 12
+                              ? 15
+                              : MediaQuery.of(context).size.width / 50),
+                      textAlign: TextAlign.center,
+                    )),
+                    margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                  ),
                 ));
   }
 
@@ -789,6 +878,9 @@ class _HomeState extends State<Home> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => Scaffold(
+                    backgroundColor: searches.length > 0
+                        ? Colors.lightGreen
+                        : Colors.grey[400],
                     floatingActionButton: FloatingActionButton(
                         child: Icon(
                           Icons.home,
@@ -797,21 +889,27 @@ class _HomeState extends State<Home> {
                         ),
                         backgroundColor: Colors.white70,
                         onPressed: () {
-                          word = searches[a - 1];
-                          search.text = searches[a - 1];
-                          print(a);
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      IntervalBetween(page: Home())));
+                          if (searches.length == 0) {
+                            Navigator.pop(context, Home());
+                          } else {
+                            word = searches[a - 1];
+                            search.text = searches[a - 1];
+                            print(a);
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        IntervalBetween(page: Home())));
+                          }
                         }),
                     body: Center(
                       child: BubbleLens(
                         widgets: SearchHistory(searches),
                         width: MediaQuery.of(context).size.width,
                         height: MediaQuery.of(context).size.height,
-                        size: MediaQuery.of(context).size.width / 5,
+                        size: MediaQuery.of(context).size.width > 1000
+                            ? MediaQuery.of(context).size.width / 5
+                            : MediaQuery.of(context).size.width / 3,
                         radius: Radius.circular(2000),
                       ),
                     ),
@@ -819,13 +917,13 @@ class _HomeState extends State<Home> {
                 ));
           },
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.grey[200],
         appBar: AppBar(
           leading: Container(
               margin: EdgeInsets.fromLTRB(5, 5, 5, 5),
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(1000),
-                  color: Colors.black54,
+                  color: Colors.black38,
                   image: DecorationImage(image: AssetImage('img/icon.png')))),
           actions: [
             Container(
@@ -833,8 +931,8 @@ class _HomeState extends State<Home> {
               width: 50,
               height: 50,
               child: RaisedButton(
-                color: Colors.black54,
-                splashColor: Colors.green,
+                color: Colors.black12,
+                splashColor: Colors.black,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(2000)),
                 onPressed: () {
@@ -882,7 +980,7 @@ class _HomeState extends State<Home> {
                     )),
                   ),
           ),
-          backgroundColor: Colors.green,
+          backgroundColor: Colors.lightGreen,
           title: Center(
             child: Container(
               width: MediaQuery.of(context).size.width,
@@ -896,6 +994,11 @@ class _HomeState extends State<Home> {
               ),
               child: TextField(
                 onSubmitted: (word) {
+                  Toast.show("Showing Results for " + word, context,
+                      duration: 3,
+                      gravity: Toast.BOTTOM,
+                      backgroundColor: Colors.lightGreen,
+                      textColor: Colors.white);
                   FocusScope.of(context).requestFocus(FocusNode());
                   print("h");
                   searches.add(word);
@@ -948,9 +1051,29 @@ class _HomeState extends State<Home> {
             a <= 0
                 ? Expanded(
                     child: Center(
-                      child: Text(
-                        "Search Any Key Word\nResults Of Your Search Will Be Displayed Here",
-                        textAlign: TextAlign.center,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.edit_outlined,
+                            color: Colors.lightGreen,
+                            size: MediaQuery.of(context).size.width / 10 > 200
+                                ? 200
+                                : MediaQuery.of(context).size.width / 5,
+                          ),
+                          Text(
+                            "Search Any Key Word\nResults Of Your Search Will Be Displayed Here",
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontWeight: FontWeight.w100,
+                              fontSize:
+                                  MediaQuery.of(context).size.width / 60 > 15
+                                      ? 20
+                                      : MediaQuery.of(context).size.width / 60,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
                     ),
                   )
